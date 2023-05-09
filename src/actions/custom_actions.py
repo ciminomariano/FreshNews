@@ -6,7 +6,7 @@ import os
 import requests
 from RPA.Browser.Selenium import Selenium
 
-from exceptions.custom_exceptions import CustomException, log_section_not_found, log_element_not_found
+from exceptions.custom_exceptions import CustomException, log_section_not_found, error_saving_file
 from exceptions.selenium_exceptions import *
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -99,7 +99,7 @@ class CustomActions:
                 "world": "//input[@data-testid='DropdownLabelCheckbox' and @value='World|nyt://section/70e865b6-cc70-5181-84c9-8368b3a5c34b']",
             }
 
-
+            #Finding the categories and clicking when i found them
             for category in news_categories:
 
                 x_path = categories_xpath.get(category.lower())
@@ -205,7 +205,8 @@ class CustomActions:
             print("Time expired to find the button ")
         
         return True
-            
+
+    #This function apply the datetime filters            
     def apply_datetime(self, num_months):
         now = datetime.now()
         num_months = int(num_months)
@@ -256,23 +257,16 @@ class CustomActions:
 
         return True
    
-   
-    def extract_articles(self, search_phrases):
-        # Open the URL in a new browser window
-        #url = self.browser.current_url
-        #self.browser.open_available_browser(url)
-        # Wait for the page to load        
+    #This functions takes the search pharses
+    #and find ocurrences in the articles
+    def extract_articles(self, search_phrases):           
 
         # Get all the articles on the page
         data = []
         for article in self.browser.find_elements('xpath:' +'//li[@data-testid="search-bodega-result"]'):
             try:
-                # Get the article's title, date, description and image url
-                #title = self.browser.find_element(By.XPATH, '//h4[@class="css-2fgx4k"]')
-                #title = article.find_element('xpath:' + './/h4[@class="css-2fgx4k"]')
+                # Get the article's title, date, description and image url                
                 title = article.find_element(by='xpath', value='.//h4[@class="css-2fgx4k"]')
-
-
                 date = article.find_element(by='xpath', value='.//span[@data-testid="todays-date"]')
                 description = article.find_element(by='xpath', value= './/p[@class="css-16nhkrn"]')
                 image_url = article.find_element(by='xpath', value='.//img').get_attribute('src')
@@ -303,15 +297,18 @@ class CustomActions:
                 has_money = bool(re.search(money_regex, title.text + description.text))
 
                 # Download the image and save it to the output directory
-                output_dir = 'output/images'
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-                image_path = os.path.join(output_dir, image_name)
-                response = requests.get(image_url)
-                with open(image_path, 'wb') as f:
-                    f.write(response.content)
-
-
+                try:
+                    output_dir = 'output'
+                    if not os.path.exists(output_dir):
+                        os.makedirs(output_dir)
+                    image_path = os.path.join(output_dir, image_name)
+                    response = requests.get(image_url)
+                    with open(image_path, 'wb') as f:
+                        f.write(response.content)
+                except Exception as e:
+                    error_saving_file(e)
+                    
+                # Create the dict with the info
                 article_data = {
                     'title': title.text,
                     'date': date.get_attribute('aria-label'),
@@ -334,25 +331,28 @@ class CustomActions:
 
     def write_to_excel(self,data):
         # Create a new workbook and add a worksheet
-        os.makedirs('output/excel/', exist_ok=True)
-        workbook = xlsxwriter.Workbook('output/excel/articles.xlsx')
-        worksheet = workbook.add_worksheet()
 
-        # Write the header row
-        header = ['title', 'date', 'description', 'image_name','image_path','title_count','description_count','has_money']
-        for col, heading in enumerate(header):
-            worksheet.write(0, col, heading)
+        try:
+            os.makedirs('output', exist_ok=True)
+            workbook = xlsxwriter.Workbook('output/articles.xlsx')
+            worksheet = workbook.add_worksheet()
+        
+            # Write the header row
+            header = ['title', 'date', 'description', 'image_name','image_path','title_count','description_count','has_money']
+            for col, heading in enumerate(header):
+                worksheet.write(0, col, heading)
 
-        # Write the data rows
-        for row, article in enumerate(data):
-            worksheet.write(row + 1, 0, article['title'])
-            worksheet.write(row + 1, 1, article['date'])
-            worksheet.write(row + 1, 2, article['description'])
-            worksheet.write(row + 1, 3, article['image_name'])
-            worksheet.write(row + 1, 4, article['image_path'].replace("\\", "/"))  # replace the path separator with a slash
-            worksheet.write(row + 1, 5, article['title_count'])
-            worksheet.write(row + 1, 6, article['description_count'])
-            worksheet.write(row + 1, 7, article['has_money'])
-
-        # Close the workbook
-        workbook.close()
+            # Write the data rows
+            for row, article in enumerate(data):
+                worksheet.write(row + 1, 0, article['title'])
+                worksheet.write(row + 1, 1, article['date'])
+                worksheet.write(row + 1, 2, article['description'])
+                worksheet.write(row + 1, 3, article['image_name'])
+                worksheet.write(row + 1, 4, article['image_path'].replace("\\", "/"))  # replace the path separator with a slash
+                worksheet.write(row + 1, 5, article['title_count'])
+                worksheet.write(row + 1, 6, article['description_count'])
+                worksheet.write(row + 1, 7, article['has_money'])
+            # Close the workbook
+            workbook.close()            
+        except Exception as e:
+            error_saving_file(e)

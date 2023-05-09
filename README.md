@@ -1,3 +1,20 @@
+##
+This robot was created to work with RPA Framework
+but also can be installed in a local enviroment.
+So if you want to test it in a local machine
+you need to install the dependencies of requirements.txt 
+it can be made by using the comand
+pip install -r requirements.txt (Must be in the requirements
+directory)
+Recomended to make a virtual enviroment to install 
+dependencies
+Git Hub repo 
+Rpa Framework https://github.com/ciminomariano/FreshNews
+Also there is a pure selenium version
+Pure selenium https://github.com/ciminomariano/RpaFreshNews
+##
+
+
 # Template: Basic Python only robot
 
 Get started with just Python.
@@ -11,3 +28,5 @@ This template robot:
 
 - [Python basics](https://robocorp.com/docs/languages-and-frameworks/python)
 - [Best practices in creating Python robots](https://robocorp.com/docs/development-guide/qa-and-best-practices/python-robots)
+
+

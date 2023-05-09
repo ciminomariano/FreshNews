@@ -1,6 +1,3 @@
-from actions import default_actions
-
-
 # Define a main() function that calls the other functions in order:
 from actions import CustomActions
 from constants.constants_names import URLNYTIMES
@@ -32,7 +29,6 @@ num_months = config.get('search', 'NUMBER_OF_MONTHS')
 def main():
     # Create an instance of my custom actions class
     custom_actions = CustomActions(URLNYTIMES)
-
     try:
     # Execute the function to open the web site
         if custom_actions.open_website(constants_names.URLNYTIMES):
@@ -44,20 +40,20 @@ def main():
                         # Enter the search phrase imported from config file
                         if custom_actions.write_search_term(search_phrase):
                             # Apply the date filters also imported from config file
-                            custom_actions.apply_datetime(num_months)
+                            if custom_actions.apply_datetime(num_months):
                             # Apply the filter categories from the list in config file
                             # (categories MUST BE separated by coma
                             # example Books,Business,Movies,New York,Opinion )
-                            custom_actions.apply_categories(news_categories)
+                                if custom_actions.apply_categories(news_categories):
                             # Call to the function where we extract the info
                             #of the articles
-                            articles = custom_actions.extract_articles(search_phrase)
+                                    articles = custom_actions.extract_articles(search_phrase)
                             #Save the excel file with the info of the web site
-                            custom_actions.write_to_excel(articles)
+                                    if custom_actions.write_to_excel(articles):
+                                        print("Excel file exported")
     except Exception as e:
         logging.error(f"An exception occurred: {e}")
-
-
+ 
 # Call the main() function, checking that we are running as a stand-alone script:
 if __name__ == "__main__":
     main()
