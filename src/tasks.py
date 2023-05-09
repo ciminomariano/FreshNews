@@ -36,9 +36,9 @@ def main():
     try:
     # Execute the function to open the web site
         if custom_actions.open_website(constants_names.URLNYTIMES):
-            if custom_actions.accept_cookies():            
+            if custom_actions.maximaze_nav():
                 # Accept the cookies
-                if custom_actions.maximaze_nav():                                        
+                if custom_actions.accept_cookies():
                     # Click on search bar
                     if custom_actions.click_search_bar():
                         # Enter the search phrase imported from config file
