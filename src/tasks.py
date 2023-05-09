@@ -41,14 +41,14 @@ def main():
                         if custom_actions.write_search_term(search_phrase):
                             # Apply the date filters also imported from config file
                             if custom_actions.apply_datetime(num_months):
-                            # Apply the filter categories from the list in config file
-                            # (categories MUST BE separated by coma
-                            # example Books,Business,Movies,New York,Opinion )
+                                # Apply the filter categories from the list in config file
+                                # (categories MUST BE separated by coma
+                                # example Books,Business,Movies,New York,Opinion )
                                 if custom_actions.apply_categories(news_categories):
-                            # Call to the function where we extract the info
-                            #of the articles
+                                    # Call to the function where we extract the info
+                                    #of the articles
                                     articles = custom_actions.extract_articles(search_phrase)
-                            #Save the excel file with the info of the web site
+                                    #Save the excel file with the info of the web site
                                     if custom_actions.write_to_excel(articles):
                                         print("Excel file exported")
     except Exception as e:
